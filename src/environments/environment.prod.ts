@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: 'https://usersconnect.cloudomair.org'  // Your production domain
 };
