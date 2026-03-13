@@ -1,0 +1,7 @@
+{
+  "name": "usersconnect-mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
