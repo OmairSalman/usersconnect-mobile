@@ -1,2 +1,26 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+:root {
+  /* Primary color - Brand blue */
+  --ion-color-primary: #007bff;
+  --ion-color-primary-rgb: 0, 123, 255;
+
+  /* Secondary color - Brand purple */
+  --ion-color-secondary: #6610f2;
+  
+  /* Custom gradient */
+  --brand-gradient: linear-gradient(90deg, #007bff, #6610f2);
+  
+  /* Custom text colors (from your Angular app) */
+  --text-dark: #343a40;
+  --text-muted: #6c757d;
+}
+
+/* Disable dark mode for now */
+@media (prefers-color-scheme: dark) {
+  body {
+    --ion-background-color: #ffffff;
+    --ion-text-color: #000000;
+  }
+}

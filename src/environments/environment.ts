@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://192.168.1.3:4200'  // ✅ Use your local IP, not localhost!
+  apiUrl: 'https://usersconnect.cloudomair.org'
 };
 
 /*
