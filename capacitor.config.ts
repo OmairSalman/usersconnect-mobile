@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.cloudomair.usersconnect',
-  appName: 'usersconnect-mobile',
+  appName: 'UsersConnect',
   webDir: 'www'
 };
 

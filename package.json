@@ -7,7 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "dev": "ionic serve --host=192.168.1.3 --port=8200",
+    "serve": "ionic serve --host=192.168.1.3 --port=8200",
     "build-android:debug": "bash scripts/build-android-debug.sh",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
