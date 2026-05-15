@@ -1,0 +1,46 @@
+@if(authService.currentUser(); as currentUser)
+{
+<div class="container py-4">
+  <h1 class="mb-4 fw-bold">All Users</h1>
+  <ul class="list-group user-list">
+    @for (user of users(); track user._id)
+    {
+      <li class="list-group-item d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center user-info">
+          <img src="{{user.avatarURL}}" alt="{{user.name}}'s avatar" class="user-avatar me-3" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+          <div>
+            <span class="fw-semibold">{{user.name}}</span>
+            <span class="text-muted ms-2 small">{{user.email}}</span>
+            @if(user.isAdmin)
+            {
+              <span class="badge bg-warning text-dark ms-2">
+                {{(currentUser._id === user._id) ? 'You' : 'Admin'}}
+              </span>
+            }
+          </div>
+        </div>
+        @if(currentUser._id !== user._id)
+        {
+          <div class="d-flex user-actions gap-2">
+            <div class="d-flex flex-row">
+              <a routerLink="/profile/{{user._id}}" class="btn btn-sm btn-outline-primary">View Profile</a>
+              <a routerLink="/admin/edit/{{user._id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            </div>
+              <div class="d-flex flex-column flex-sm-row gap-2">
+                @if(user.isAdmin)
+                {
+                  <button class="btn btn-sm btn-warning toggle-admin-btn admin-toggle-btn-wide">Remove Admin</button>
+                }
+                @else
+                {
+                  <button class="btn btn-sm btn-success toggle-admin-btn admin-toggle-btn-wide">Make Admin</button>
+                }
+                <button class="btn btn-sm btn-danger delete-user-btn">Delete</button>
+              </div>
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</div>
+}

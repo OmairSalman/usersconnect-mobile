@@ -1,0 +1,83 @@
+ion-content {
+  --background: #f0f2f5;
+}
+
+.edit-container {
+  padding: 12px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+ion-card {
+  border-radius: 14px;
+  margin: 0 0 12px;
+  box-shadow: var(--card-shadow);
+
+  ion-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+
+  ion-input {
+    --padding-top: 0.75rem;
+    --padding-bottom: 0.75rem;
+    --padding-start: 0.75rem;
+    --padding-end: 0.75rem;
+    --border-radius: 8px;
+    --background: #f8f9fa;
+    --border-width: 1px;
+    --border-color: var(--card-border);
+  }
+}
+
+.field-spacer {
+  height: 12px;
+}
+
+.toggle-item {
+  --background: #f8f9fa;
+  --border-radius: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+
+  h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+}
+
+.save-btn {
+  margin-top: 14px;
+  --border-radius: 8px;
+  height: 46px;
+  font-weight: 600;
+  --background: linear-gradient(135deg, #007bff, #6610f2);
+}
+
+.error-text {
+  font-size: 0.82rem;
+  margin: 6px 0 0;
+  padding-left: 4px;
+}
+
+.success-text {
+  font-size: 0.82rem;
+  margin: 6px 0 0;
+  padding-left: 4px;
+}
+
+.bottom-spacer {
+  height: 24px;
+}

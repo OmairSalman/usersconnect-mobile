@@ -2,25 +2,62 @@
 // https://ionicframework.com/docs/theming/
 
 :root {
-  /* Primary color - Brand blue */
   --ion-color-primary: #007bff;
   --ion-color-primary-rgb: 0, 123, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #006fe0;
+  --ion-color-primary-tint: #1a89ff;
 
-  /* Secondary color - Brand purple */
   --ion-color-secondary: #6610f2;
-  
-  /* Custom gradient */
-  --brand-gradient: linear-gradient(90deg, #007bff, #6610f2);
-  
-  /* Custom text colors (from your Angular app) */
+  --ion-color-secondary-rgb: 102, 16, 242;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #5a0ed5;
+  --ion-color-secondary-tint: #7528f3;
+
+  --ion-color-danger: #dc3545;
+  --ion-color-danger-rgb: 220, 53, 69;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-shade: #c12e3d;
+  --ion-color-danger-tint: #e04958;
+
+  --ion-color-warning: #ffc107;
+  --ion-color-warning-rgb: 255, 193, 7;
+
+  --ion-color-success: #28a745;
+  --ion-color-medium: #6c757d;
+  --ion-color-medium-rgb: 108, 117, 125;
+  --ion-color-light: #f8f9fa;
+
+  --brand-gradient: linear-gradient(135deg, #007bff, #6610f2);
   --text-dark: #343a40;
   --text-muted: #6c757d;
+  --card-border: #e9ecef;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* Disable dark mode for now */
+/* Disable dark mode */
 @media (prefers-color-scheme: dark) {
   body {
     --ion-background-color: #ffffff;
-    --ion-text-color: #000000;
+    --ion-background-color-rgb: 255, 255, 255;
+    --ion-text-color: #343a40;
+    --ion-text-color-rgb: 52, 58, 64;
+    --ion-card-background: #ffffff;
+    --ion-item-background: #ffffff;
+    --ion-toolbar-background: #ffffff;
+    --ion-tab-bar-background: #ffffff;
   }
+}
+
+/* Global gradient toolbar */
+ion-toolbar {
+  --background: linear-gradient(135deg, #007bff, #6610f2);
+  --color: white;
+  --border-color: transparent;
+}
+
+ion-back-button {
+  --color: white;
 }

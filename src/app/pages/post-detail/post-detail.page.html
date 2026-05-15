@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/feed"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Post</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (loading()) {
+    <div class="loading-container">
+      <ion-spinner color="primary"></ion-spinner>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-container">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  @if (!loading() && post(); as post) {
+    @if (authService.currentUser(); as user) {
+      <app-post-card
+        [post]="post"
+        [currentUser]="user"
+        [showComments]="true"
+        (postUpdated)="onPostUpdated($event)"
+        (postDeleted)="onPostDeleted($event)">
+      </app-post-card>
+    }
+  }
+
+  <div class="bottom-spacer"></div>
+</ion-content>

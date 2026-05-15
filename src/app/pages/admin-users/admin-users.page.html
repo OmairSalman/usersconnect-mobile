@@ -1,0 +1,62 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>All Users</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-searchbar
+    placeholder="Search by name or email"
+    (ionInput)="onSearch($event)"
+    [debounce]="200">
+  </ion-searchbar>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <ion-spinner color="primary"></ion-spinner>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-container">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <ion-list>
+      @for (user of filteredUsers(); track user._id) {
+        <ion-item button (click)="onUserActions(user)" detail="false">
+          <ion-avatar slot="start">
+            <img [src]="user.avatarURL" [alt]="user.name">
+          </ion-avatar>
+
+          <ion-label>
+            <h2>
+              {{ user.name }}
+              @if (user._id === authService.currentUser()?._id) {
+                <ion-badge color="light" style="margin-left: 6px; font-size: 0.7rem;">You</ion-badge>
+              } @else if (user.isAdmin) {
+                <ion-badge color="warning" style="margin-left: 6px; font-size: 0.7rem;">Admin</ion-badge>
+              }
+            </h2>
+            <p>{{ user.email }}</p>
+          </ion-label>
+
+          @if (processingId() === user._id) {
+            <ion-spinner name="crescent" slot="end"></ion-spinner>
+          }
+        </ion-item>
+      }
+    </ion-list>
+
+    @if (filteredUsers().length === 0 && !loading()) {
+      <div class="state-container">
+        <p>No users found.</p>
+      </div>
+    }
+  }
+</ion-content>

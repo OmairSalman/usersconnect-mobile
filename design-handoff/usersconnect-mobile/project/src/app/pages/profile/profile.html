@@ -1,0 +1,143 @@
+<!-- Outer check: Is there a logged-in user viewing this? -->
+@if(authService.currentUser(); as currentUser) {
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="text-center my-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading profile...</p>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Success state: Profile data loaded -->
+  @if (!loading() && !error() && user(); as profileUser) {
+    <div class="profile-card">
+      <div class="profile-avatar">
+        <!-- Using alias: profileUser instead of user()! -->
+        <img 
+          [src]="profileUser.avatarURL"
+          [alt]="profileUser.name + '\'s avatar'"
+        >
+      </div>
+
+      <div class="profile-info">
+        <h1>{{ profileUser.name }}</h1>
+        
+        <!-- Check if viewing own profile -->
+        @if(currentUser._id === profileUser._id) {
+          <!-- Owner viewing their own profile -->
+          <p class="mb-1">
+            {{ profileUser.email }}
+            
+            <!-- Verification Badge -->
+            @if(profileUser.isEmailVerified) {
+              <i class="fa-solid fa-circle-check text-success ms-2" title="Email Verified"></i>
+            } @else {
+              <i class="fa-solid fa-circle-exclamation ms-2" style="color: #dc3545;" title="Email Not Verified"></i>
+            }
+            
+            <!-- Privacy Badge -->
+            @if(profileUser.isEmailPublic) {
+              <i class="fa-solid fa-globe text-muted ms-1" title="Email is Public"></i>
+            } @else {
+              <i class="fa-solid fa-lock text-muted ms-1" title="Email is Private"></i>
+            }
+          </p>
+          
+          <!-- Verify email button (if not verified) -->
+          @if(!profileUser.isEmailVerified) {
+            <button type="button" class="btn btn-sm btn-success mb-2" id="verify-email-btn-profile">
+              <i class="fa-solid fa-envelope"></i> Verify Email
+            </button>
+            <br>
+          }
+          
+          <!-- Edit profile button -->
+          <a routerLink="/profile/edit" class="btn btn-outline-primary edit-profile-btn">
+            <i class="fa-solid fa-pen"></i> Edit profile
+          </a>
+        } @else {
+          <!-- Visitor viewing someone else's profile -->
+          @if(profileUser.isEmailPublic) {
+            <p>{{ profileUser.email }}</p>
+          }
+        }
+
+        <!-- Stats section -->
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value">{{ postsLikes() }}</span>
+            <span class="stat-label">{{ postsLikes() === 1 ? "Like on posts" : "Likes on posts" }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ commentsLikes() }}</span>
+            <span class="stat-label">{{ commentsLikes() === 1 ? "Like on comments" : "Likes on comments" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if(page() > totalPages() && totalPages() > 0)
+    {
+      <p class="text-center my-5">You've gone too far! There aren't enough posts to reach this page!<br>Why don't you
+        @if(currentUser._id === profileUser._id){<a routerLink='/feed'>go post some more?</a>}
+        @else{<a [routerLink]="['/profile', user()!._id]">{{`go back to ${user()!.name}'s first page?`}}</a>}
+      </p>
+    }
+    @else
+    {
+      <div class="user-posts" id="feed-container">
+        @if (posts().length > 0)
+        {
+          @for(post of posts(); track post._id)
+          {
+            <app-post-card
+            [post]="post"
+            [currentUser]="currentUser"
+            [s3Enabled]="s3Enabled()"
+            (postUpdated)="onPostUpdated($event)"></app-post-card>
+          }
+        }
+        @else
+        {
+          <div class="text-center my-5">
+            @if(currentUser._id === profileUser._id) {
+              <p>You didn't make any posts yet, how about you <a routerLink="/feed">create a new one?</a></p>
+            } @else {
+              <p>{{ profileUser.name }} has no posts yet.</p>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+}
+
+<!-- pagination UI -->
+<nav id="pagination" aria-label="Page navigation" class="mt-3">
+  @if(totalPages() > 1)
+  {
+    <ul class="pagination justify-content-center">
+      @if (page() > 1 && page() < totalPages())
+      {
+        <li class="page-item"><button class="page-link" (click)="scrollToTop()" [routerLink]="['/feed']" [queryParams]="{page: page() - 1}">Previous</button></li>
+      }
+      @for(pageNum of getPageNumbers(); track pageNum)
+      {
+        <li class="page-item"><button class="page-link" [class.active]="(pageNum === page())" (click)="scrollToTop()" [routerLink]="['/feed']" [queryParams]="{page: pageNum}">{{pageNum}}</button></li>
+      }
+      @if (page() < totalPages())
+      {
+        <li class="page-item"><button class="page-link" (click)="scrollToTop()" [routerLink]="['/feed']" [queryParams]="{page: page() + 1}">Next</button></li>
+      }
+    </ul>
+  }
+</nav>

@@ -1,80 +1,28 @@
-// Card styling
-ion-card {
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin: 8px;
-    background: white;
-    border: 1px solid #e0e0e0;
-    
-    ion-card-title {
-        font-size: 1.25rem;
-        font-weight: bold;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-    
-    ion-card-subtitle {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-    }
+ion-content {
+  --background: #f0f2f5;
 }
 
-// Post content
-.post-content {
-    font-size: 1rem;
-    color: var(--text-dark);
-    white-space: pre-line;
-    margin-top: 0.5rem;
+.toolbar-logo {
+  height: 30px;
+  vertical-align: middle;
 }
 
-// Post image
-.post-image {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 0.75rem;
+.loading-container,
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+
+  p, .state-msg {
+    color: var(--text-muted);
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+  }
 }
 
-// Action buttons row
-.post-actions {
-    display: flex;
-    gap: 0.25rem;
-    margin-top: 0.75rem;
-    
-    ion-button {
-        --padding-start: 0.5rem;
-        --padding-end: 0.5rem;
-        text-transform: none;
-        font-size: 0.875rem;
-    }
-}
-
-// Loading state
-.loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    
-    p {
-        margin-top: 1rem;
-        color: var(--text-muted);
-    }
-}
-
-// Error state
-.error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    
-    .error-text {
-        color: var(--ion-color-danger);
-        margin-bottom: 1rem;
-    }
+.bottom-spacer {
+  height: 16px;
 }

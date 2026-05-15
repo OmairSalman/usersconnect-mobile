@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UsersConnect Mobile</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app-data.jsx"></script>
+<script type="text/babel" src="app-screens.jsx"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #1a1a2e; font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+  #root { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+
+  /* Smooth screen transitions */
+  .screen-enter { animation: slideIn 0.28s cubic-bezier(0.32,0.72,0,1); }
+  .screen-back  { animation: slideBack 0.26s cubic-bezier(0.32,0.72,0,1); }
+  @keyframes slideIn   { from { transform: translateX(100%); opacity:0.7 } to { transform: translateX(0); opacity:1 } }
+  @keyframes slideBack { from { transform: translateX(-30%); opacity:0.7 } to { transform: translateX(0); opacity:1 } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "darkMode": false,
+  "cardStyle": "standard",
+  "frameColor": "space"
+}/*EDITMODE-END*/;
+
+// ── Bottom Tab Bar ─────────────────────────────────────────────
+function BottomTabBar({ active, onNav, theme }) {
+  const tabs = [
+    { id: 'feed',    icon: 'fa-house',       label: 'Feed'    },
+    { id: 'create',  icon: 'fa-plus',        label: null      },
+    { id: 'profile', icon: 'fa-circle-user', label: 'Profile' },
+  ];
+
+  return (
+    <div style={{
+      display: 'flex', background: theme.tabBg, borderTop: `1px solid ${theme.tabBorder}`,
+      paddingBottom: 20, paddingTop: 6, flexShrink: 0,
+    }}>
+      {tabs.map(tab => {
+        const isActive = active === tab.id;
+        return (
+          <button key={tab.id} onClick={() => onNav(tab.id)}
+            style={{ flex: 1, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '4px 0', position: 'relative' }}>
+            {tab.id === 'create' ? (
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: BRAND_GRADIENT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: -14, boxShadow: '0 4px 14px rgba(0,123,255,0.4)' }}>
+                <i className={`fa-solid ${tab.icon}`} style={{ color: 'white', fontSize: 18 }}></i>
+              </div>
+            ) : (
+              <>
+                <i className={`fa-${isActive ? 'solid' : 'regular'} ${tab.icon}`}
+                  style={{ fontSize: 20, color: isActive ? BRAND_START : theme.muted }} />
+                <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 400, color: isActive ? BRAND_START : theme.muted }}>{tab.label}</span>
+                {isActive && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 24, height: 3, borderRadius: 2, background: BRAND_GRADIENT }} />}
+              </>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Gradient top header bar ────────────────────────────────────
+const LogoIconWhite = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 110 80">
+    <g transform="translate(16,16)">
+      <path d="M16 6 h28 a10 10 0 0 1 10 10 v12 a10 10 0 0 1 -10 10 h-9 l-7 7 v-7 h-12 a10 10 0 0 1 -10 -10 v-12 a10 10 0 0 1 10 -10 z" fill="white"/>
+      <path d="M34 0 h26 a10 10 0 0 1 10 10 v14 a10 10 0 0 1 -10 10 h-10 v7 l-7 -7 h-9 a10 10 0 0 1 -10 -10 v-7" fill="white" opacity="0.4"/>
+    </g>
+  </svg>
+);
+
+function TopBar({ title, showLogo = false, backBtn = null, dark, rightContent, theme }) {
+  return (
+    <div style={{
+      background: BRAND_GRADIENT,
+      paddingTop: 70, paddingBottom: 12, paddingLeft: 16, paddingRight: 16,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      flexShrink: 0,
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+        {backBtn}
+        {showLogo && <LogoIconWhite />}
+        <div style={{ fontWeight: 800, fontSize: 18, color: 'white', letterSpacing: -0.3 }}>{title}</div>
+      </div>
+      {rightContent}
+    </div>
+  );
+}
+
+// ── Main App ───────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const dark = tweaks.darkMode;
+  const theme = getTheme(dark);
+  const cardStyle = tweaks.cardStyle;
+
+  const [authScreen, setAuthScreen] = useState('login');
+  const [authed, setAuthed]         = useState(false);
+  const [currentUser, setCurrentUser] = useState(CURRENT_USER);
+  const [activeTab, setActiveTab]   = useState('feed');
+  const [posts, setPosts]           = useState(INITIAL_POSTS);
+  const [navStack, setNavStack]     = useState([]);
+  const [animClass, setAnimClass]   = useState('');
+  const [popupData, setPopupData]   = useState(null); // { userIds, title, accentColor }
+
+  const userPosts = posts.filter(p => p.author._id === currentUser._id);
+
+  const push = useCallback((screen, data = {}) => {
+    setAnimClass('screen-enter');
+    setNavStack(prev => [...prev, { screen, data }]);
+  }, []);
+
+  const pop = useCallback(() => {
+    setAnimClass('screen-back');
+    setNavStack(prev => prev.slice(0, -1));
+  }, []);
+
+  const navigate = useCallback((tab) => {
+    setNavStack([]);
+    setActiveTab(tab);
+  }, []);
+
+  const handlePostUpdate = useCallback((updated) => {
+    setPosts(prev => prev.map(p => p._id === updated._id ? updated : p));
+  }, []);
+
+  const handlePostDelete = useCallback((id) => {
+    setPosts(prev => prev.filter(p => p._id !== id));
+    setNavStack([]);
+  }, []);
+
+  const handlePostCreate = useCallback((newPost) => {
+    setPosts(prev => [newPost, ...prev]);
+    navigate('feed');
+  }, [navigate]);
+
+  const handleLogin = useCallback((user) => {
+    setCurrentUser(user);
+    setAuthed(true);
+    setNavStack([]);
+    setActiveTab('feed');
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    setAuthed(false);
+    setAuthScreen('login');
+    setNavStack([]);
+  }, []);
+
+  const handleViewProfile = useCallback((user) => {
+    push('userProfile', { user });
+  }, [push]);
+
+  const handleShowPopup = useCallback((userIds, title, accentColor) => {
+    setPopupData({ userIds, title, accentColor });
+  }, []);
+
+  const topOfStack = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+
+  const frameColors = {
+    space:  { bg: 'radial-gradient(ellipse at 40% 40%, #1a1a2e 0%, #0d0d1a 100%)' },
+    silver: { bg: 'radial-gradient(ellipse at 40% 40%, #d0d0d8 0%, #b0b0b8 100%)' },
+    gold:   { bg: 'radial-gradient(ellipse at 40% 40%, #e8d5a0 0%, #c8a860 100%)' },
+  };
+  const fc = frameColors[tweaks.frameColor] || frameColors.space;
+
+  // ── Render inner screen ──────────────────────────────────────
+  const renderScreen = () => {
+    if (!authed) {
+      return authScreen === 'login'
+        ? <LoginScreen onLogin={handleLogin} onRegister={() => setAuthScreen('register')} theme={theme} />
+        : <RegisterScreen onRegister={() => handleLogin(MOCK_USERS[0])} onLogin={() => setAuthScreen('login')} theme={theme} />;
+    }
+
+    if (topOfStack) {
+      const { screen, data } = topOfStack;
+      const BackBtn = () => (
+        <button onClick={pop} style={{ background:'none', border:'none', cursor:'pointer', color:'white', opacity:0.9, fontSize:14, display:'flex', alignItems:'center', gap:5, padding:0, fontWeight:600 }}>
+          <i className="fa-solid fa-chevron-left"></i>
+        </button>
+      );
+      if (screen === 'editProfile') return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <TopBar title="Edit Profile" backBtn={<BackBtn />} dark={dark} theme={theme} />
+          <div style={{ flex:1, overflow:'auto' }}>
+            <EditProfileScreen user={currentUser} onBack={pop} onSave={() => pop()} theme={theme} />
+          </div>
+        </div>
+      );
+      if (screen === 'postDetail') return (
+        <PostDetailScreen post={data.post} currentUser={currentUser} onBack={pop}
+          onPostUpdate={p => p._deleted ? handlePostDelete(p._id) : handlePostUpdate(p)}
+          onViewProfile={handleViewProfile}
+          onShowPopup={handleShowPopup} theme={theme} />
+      );
+      if (screen === 'userProfile') return (
+        <div style={{ height: '100%', overflow: 'auto' }}>
+          <TopBar title={data.user.name} backBtn={<BackBtn />} dark={dark} theme={theme} />
+          <ProfileScreen profileUser={data.user} currentUser={currentUser}
+            posts={posts.filter(p => p.author._id === data.user._id)}
+            onViewPost={p => push('postDetail', { post: p })}
+            onViewProfile={handleViewProfile} onShowPopup={handleShowPopup}
+            onBack={pop} isOwnProfile={data.user._id === currentUser._id}
+            onViewUsers={() => push('usersList')} onLogout={handleLogout}
+            onEditProfile={() => push('editProfile')}
+            theme={theme} cardStyle={cardStyle} />
+        </div>
+      );
+      if (screen === 'usersList') return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <TopBar title="All Users" backBtn={<BackBtn />} dark={dark} theme={theme} />
+          <div style={{ flex:1, overflow:'auto' }}>
+            <UsersScreen users={MOCK_USERS} currentUser={currentUser}
+              onViewProfile={handleViewProfile}
+              onAdminEdit={u => push('adminEditUser', { user: u })}
+              theme={theme} />
+          </div>
+        </div>
+      );
+      if (screen === 'adminEditUser') return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <TopBar title="Edit User" backBtn={<BackBtn />} dark={dark} theme={theme} />
+          <div style={{ flex:1, overflow:'auto' }}>
+            <AdminEditUserScreen user={data.user} onBack={pop} onSave={() => pop()} theme={theme} />
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === 'feed') return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <TopBar title="UsersConnect" showLogo={true} dark={dark} theme={theme} />
+        <div style={{ flex:1, overflow:'auto' }}>
+          <FeedScreen posts={posts} currentUser={currentUser}
+            onPostUpdate={handlePostUpdate} onPostDelete={handlePostDelete}
+            onViewPost={p => push('postDetail', { post: p })}
+            onViewProfile={handleViewProfile} onShowPopup={handleShowPopup}
+            onCreatePost={() => navigate('create')} theme={theme} cardStyle={cardStyle} />
+        </div>
+      </div>
+    );
+
+    if (activeTab === 'create') return (
+      <div style={{ height: '100%', overflow: 'auto' }}>
+        <TopBar title="New Post" dark={dark} theme={theme} />
+        <CreatePostScreen currentUser={currentUser} onSubmit={handlePostCreate} onBack={() => navigate('feed')} theme={theme} />
+      </div>
+    );
+
+    if (activeTab === 'profile') return (
+      <div style={{ height: '100%', overflow: 'auto' }}>
+        <TopBar title="Profile" dark={dark} theme={theme} />
+        <ProfileScreen profileUser={currentUser} currentUser={currentUser} posts={userPosts}
+          onViewPost={p => push('postDetail', { post: p })}
+          onViewProfile={handleViewProfile} onShowPopup={handleShowPopup}
+          isOwnProfile={true} onViewUsers={() => push('usersList')}
+          onEditProfile={() => push('editProfile')}
+          onLogout={handleLogout} theme={theme} cardStyle={cardStyle} />
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: fc.bg }}>
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: -40, borderRadius: 80, background: 'radial-gradient(ellipse, rgba(0,123,255,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <IOSDevice width={390} height={844} dark={dark}>
+          <div style={{ height: '100%', background: theme.bg, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+            <div key={topOfStack ? topOfStack.screen + navStack.length : activeTab} className={animClass} style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                {renderScreen()}
+              </div>
+            </div>
+            {authed && !topOfStack && (
+              <BottomTabBar active={activeTab} onNav={navigate} theme={theme} />
+            )}
+            {/* Likes/dislikes popup overlay — inside device */}
+            {popupData && (
+              <LikesPopup
+                userIds={popupData.userIds}
+                title={popupData.title}
+                accentColor={popupData.accentColor}
+                onClose={() => setPopupData(null)}
+                theme={theme}
+              />
+            )}
+          </div>
+        </IOSDevice>
+      </div>
+
+      <div style={{ position: 'absolute', bottom: 18, left: 0, right: 0, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 12, fontWeight: 500, letterSpacing: 0.5 }}>
+        UsersConnect Mobile · Design Prototype
+      </div>
+
+      <TweaksPanel>
+        <TweakSection title="Appearance">
+          <TweakToggle id="darkMode" label="Dark Mode" />
+        </TweakSection>
+        <TweakSection title="Feed Card Style">
+          <TweakRadio id="cardStyle" options={[
+            { value: 'standard', label: 'Standard' },
+            { value: 'visual',   label: 'Visual'   },
+            { value: 'compact',  label: 'Compact'  },
+          ]} />
+        </TweakSection>
+        <TweakSection title="Frame Color">
+          <TweakRadio id="frameColor" options={[
+            { value: 'space',  label: 'Space' },
+            { value: 'silver', label: 'Silver' },
+            { value: 'gold',   label: 'Gold'  },
+          ]} />
+        </TweakSection>
+        <TweakSection title="Quick Nav">
+          {authed && ['feed','create','profile'].map(tab => (
+            <button key={tab} onClick={() => { setNavStack([]); setActiveTab(tab); }}
+              style={{ display:'block', width:'100%', marginBottom:4, padding:'7px 10px', borderRadius:8, border:`1px solid ${activeTab===tab?BRAND_START:'#ddd'}`, background: activeTab===tab?'rgba(0,123,255,0.08)':'white', color: activeTab===tab?BRAND_START:'#333', fontSize:12, fontWeight:activeTab===tab?700:400, cursor:'pointer', textTransform:'capitalize', textAlign:'left' }}>
+              {tab}
+            </button>
+          ))}
+          {!authed && (
+            <button onClick={() => { setAuthed(false); setAuthScreen('login'); }}
+              style={{ display:'block', width:'100%', padding:'7px 10px', borderRadius:8, border:'1px solid #ddd', background:'white', color:'#333', fontSize:12, cursor:'pointer', textAlign:'left' }}>
+              Go to Login
+            </button>
+          )}
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

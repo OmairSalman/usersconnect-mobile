@@ -1,0 +1,66 @@
+<div class="comment-wrapper">
+  <div class="comment-row">
+    <!-- Avatar -->
+    <a [routerLink]="['/tabs/profile', comment.author._id]" class="avatar-link">
+      <img [src]="comment.author.avatarURL" [alt]="comment.author.name" class="comment-avatar">
+    </a>
+
+    <!-- Bubble + edit form -->
+    <div class="comment-body">
+      @if (!editing()) {
+        <div class="comment-bubble">
+          <a [routerLink]="['/tabs/profile', comment.author._id]" class="comment-author">
+            {{ comment.author.name }}
+          </a>
+          <p class="comment-content">{{ comment.content }}</p>
+        </div>
+        <div class="comment-footer">
+          <span class="comment-date">{{ comment.createdAt | date:'short' }}</span>
+          @if (isAuthorized()) {
+            <div class="comment-actions">
+              <button class="text-btn" (click)="onEdit()">
+                <ion-icon name="pencil-outline"></ion-icon>
+              </button>
+              <button class="text-btn danger" (click)="onDelete()">
+                <ion-icon name="trash-outline"></ion-icon>
+                @if (loading()) { <ion-spinner name="crescent" class="inline-spinner"></ion-spinner> }
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="edit-form">
+          <form [formGroup]="editForm" (ngSubmit)="onSaveEdit()">
+            <ion-textarea
+              formControlName="content"
+              [autoGrow]="true"
+              class="edit-textarea">
+            </ion-textarea>
+            <div class="edit-actions">
+              <button type="submit" class="save-btn" [disabled]="editForm.invalid || loading()">
+                @if (loading()) { <ion-spinner name="crescent" class="inline-spinner"></ion-spinner> } @else { Save }
+              </button>
+              <button type="button" class="cancel-btn" (click)="onCancelEdit()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      }
+    </div>
+
+    <!-- Reaction buttons -->
+    <div class="comment-reactions">
+      <div class="reaction-group">
+        <button class="reaction-btn" [class.liked]="isLiked(comment.likes)" (click)="onLike()">
+          <ion-icon name="thumbs-up"></ion-icon>
+        </button>
+        <span class="reaction-count">{{ comment.likes.length }}</span>
+      </div>
+      <div class="reaction-group">
+        <button class="reaction-btn dislike" [class.disliked]="isLiked(comment.dislikes)" (click)="onDislike()">
+          <ion-icon name="thumbs-down"></ion-icon>
+        </button>
+        <span class="reaction-count">{{ comment.dislikes.length }}</span>
+      </div>
+    </div>
+  </div>
+</div>

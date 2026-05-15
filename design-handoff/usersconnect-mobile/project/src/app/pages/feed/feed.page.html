@@ -1,0 +1,92 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Feed</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading State -->
+  @if (loading() && posts().length === 0) {
+    <div class="loading-container">
+      <ion-spinner color="primary"></ion-spinner>
+      <p>Loading feed...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-container">
+      <p class="error-text">{{ error() }}</p>
+      <ion-button (click)="loadFeed()" color="primary">
+        Retry
+      </ion-button>
+    </div>
+  }
+
+  <!-- Posts List -->
+  @for (post of posts(); track post._id) {
+    <ion-card>
+      <!-- Author & Date -->
+      <ion-card-header>
+        <ion-card-subtitle>
+          {{ post.author.name }} · {{ post.createdAt | date:'short' }}
+        </ion-card-subtitle>
+        <ion-card-title>{{ post.title }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Image (if exists) -->
+        @if (post.imageURL) {
+          <img [src]="post.imageURL" alt="Post image" class="post-image">
+        }
+
+        <!-- Content -->
+        <p class="post-content">{{ post.content }}</p>
+
+        <!-- Action Buttons -->
+        <div class="post-actions">
+          <!-- Like Button -->
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onLike(post)"
+            [color]="isLiked(post) ? 'primary' : 'medium'">
+            <ion-icon 
+              slot="start" 
+              [name]="isLiked(post) ? 'thumbs-up' : 'thumbs-up-outline'">
+            </ion-icon>
+            {{ post.likes.length }}
+          </ion-button>
+
+          <!-- Dislike Button -->
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="onDislike(post)"
+            [color]="isDisliked(post) ? 'danger' : 'medium'">
+            <ion-icon 
+              slot="start" 
+              [name]="isDisliked(post) ? 'thumbs-down' : 'thumbs-down-outline'">
+            </ion-icon>
+            {{ post.dislikes.length }}
+          </ion-button>
+
+          <!-- Comments Button -->
+          <ion-button 
+            fill="clear" 
+            size="small"
+            color="medium"
+            (click)="onViewComments(post)">
+            <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+            {{ post.comments.length }}
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>

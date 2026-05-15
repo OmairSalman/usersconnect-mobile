@@ -1,0 +1,155 @@
+<div class="card post-card shadow-sm mb-4">
+  <div class="card-body">
+    <!-- GRID: main content + action rail -->
+    <div class="post-grid">
+      @if(!editing())
+      {
+        <div class="post-content-view">
+          <!-- Author info -->
+          <div class="post-author text-muted mb-2">
+            <a [routerLink]="['/profile', post.author._id]">
+              <img [src]="post.author.avatarURL"
+                  [alt]="post.author.name + '\'s avatar'"
+                  class="rounded-circle me-2"
+                  width="32"
+                  height="32">{{ post.author.name }}</a>, {{ post.createdAt | date:'short' }}
+          </div>
+
+          <!-- Title -->
+          <h5 class="post-title mb-1">{{ post.title }}</h5>
+
+          <!-- Image (if exists) -->
+          @if(post.imageURL)
+          {
+            <div class="mb-3" style="display: flex; justify-content: center; width: 100%;">
+              <img [src]="post.imageURL"
+                  alt="Post image"
+                  class="rounded post-image"
+                  style="height: auto; max-height: 500px; max-width: 100%; object-fit: cover;">
+            </div>
+          }
+
+          <!-- Content -->
+          <p class="post-content mb-3">{{ post.content }}</p>
+        </div>
+      }
+      @else
+      {
+        <form class="edit-post-form" [formGroup]="editForm" (ngSubmit)="onSaveEdit()">
+          <input formControlName="title" class="edit-post-title form-control">
+          <textarea formControlName="content" class="edit-post-textarea form-control"></textarea>
+          @if(s3Enabled)
+          {
+            <!-- Image editing section -->
+            <div class="mt-2">
+              @if(post.imageURL)
+              {
+                <div class="current-image-container mb-2">
+                  <label class="form-label small text-muted">Current Image:</label>
+                  <div class="position-relative d-inline-block">
+                    <img src="{{post.imageURL}}" alt="Current post image" class="img-thumbnail" style="max-height: 150px;">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-current-image-btn" title="Remove image">
+                      <i class="fa-solid fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="mb-2">
+              <label for="edit-image-{{post._id}}" class="form-label small">{{(post.imageURL) ? 'Change Image' : 'Add Image'}} (optional):</label>
+              <input type="file"
+                    class="form-control form-control-sm edit-post-image"
+                    id="edit-image-{{post._id}}"
+                    accept="image/*">
+            </div>
+
+            <!-- New image preview -->
+            <div class="new-image-preview-container" style="display:none;">
+              <label class="form-label small text-muted">New Image Preview:</label>
+              <div class="position-relative d-inline-block">
+                <img src="" alt="New image preview" class="new-image-preview img-thumbnail" style="max-height: 150px;">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-new-image-btn" title="Remove">
+                  <i class="fa-solid fa-times"></i>
+                </button>
+              </div>
+            </div>
+          }
+          
+          <div class="edit-btn-row d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading()">
+              @if(loading()){<i class="fa-solid fa-spinner fa-spin"></i> Saving...}
+              @else {Save}
+            </button>
+            <button type="button" (click)="onCancelEdit()" class="btn btn-danger btn-sm cancel-edit-post-btn">Cancel</button>
+          </div>
+        </form>
+      }
+
+      <!-- RIGHT rail -->
+      <div class="post-actions-rail">
+        @if(isAuthorized())
+        {
+          <button type="button" class="icon-btn edit-post-btn" title="Edit" (click)="onEdit()">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button type="submit" class="icon-btn danger delete-post-btn" title="Delete" (click)="onDelete()">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        }
+
+        <button class="icon-btn like-btn" 
+                [class.liked]="isLiked(post.likes)"
+                (click)="onLike()"
+                title="Like/Unlike">
+          <i class="fa-solid fa-thumbs-up"></i>
+        </button>
+        <span class="like-count mt-1 small text-muted" 
+              [id]="'like-count-' + post._id"
+              style="cursor: pointer;">
+          {{ post.likes.length }}
+        </span>
+
+        <button class="icon-btn dislike-btn" 
+                [class.disliked]="isLiked(post.dislikes)"
+                (click)="onDislike()"
+                title="Dislike/Undislike">
+          <i class="fa-solid fa-thumbs-down"></i>
+        </button>
+        <span class="dislike-count mt-1 small text-muted"
+              [id]="'dislike-count-' + post._id"
+              style="cursor: pointer;">
+          {{ post.dislikes.length }}
+        </span>
+      </div>
+    </div> <!-- end post-grid -->
+
+    <!-- Comment form -->
+    <form class="comment-form mb-3" (ngSubmit)="onAddComment(); $event.preventDefault()">
+      <div class="comment-input-wrapper d-flex">
+        <textarea class="form-control"
+                  name="commentConent"
+                  placeholder="Write a comment..." 
+                  [(ngModel)]="commentContent"
+                  required></textarea>
+        <button class="btn btn-primary ms-2" type="submit" [disabled]="loading()">
+          @if(loading()){<i class="fa-solid fa-spinner fa-spin"></i>}
+          @else {Comment}
+        </button>
+      </div>
+    </form>
+
+    <!-- Comments list -->
+    <div class="comments-section" [id]="'comments-' + post._id">
+      @for(comment of post.comments; track comment._id)
+      {
+        <app-comment-card
+          [comment]="comment"
+          [currentUser]="currentUser"
+          (commentUpdated)="onCommentUpdated($event)"
+          (commentDeleted)="onCommentDeleted($event)">
+        </app-comment-card>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<div class="login-page d-flex justify-content-center align-items-center min-vh-100">
+  <div class="login-card card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
+    <div class="text-center mb-4">
+      <!-- Clickable logo -->
+      <a routerLink="/">
+        <img src="/images/logo-icon.svg" alt="UsersConnect Logo" class="mb-3" style="height: 80px;">
+      </a>
+      <h2 class="fw-bold text-primary">Login</h2>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" (ngSubmit)="onSubmit()">
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" [(ngModel)]="email" required placeholder="you@example.com">
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" [(ngModel)]="password" required placeholder="Enter your password">
+      </div>
+
+      @if(authService.authError()){<div id="login-error" class="text-center text-danger mb-2">{{authService.authError()}}</div>}
+
+      <!-- Submit -->
+      <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-lg btn-primary">
+          @if(loading()){<i class="fa-solid fa-spinner fa-spin"></i> Logging in...}
+          @else {Login}
+        </button>
+      </div>
+
+      <div class="text-center mb-2">
+        <a routerLink="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a>
+      </div>
+
+      <div class="text-center">
+        <p class="mb-0">Don't have an account? <a routerLink="/register" class="text-decoration-none fw-bold" style="color: #6610f2;">Register</a></p>
+      </div>
+    </form>
+  </div>
+</div>

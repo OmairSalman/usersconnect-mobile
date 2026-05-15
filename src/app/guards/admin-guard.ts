@@ -13,7 +13,7 @@ export const adminGuard: CanActivateFn = (route, state) =>
   }
   else
   {
-    router.navigate(['/feed']);
+    router.navigate(['/tabs/feed']);
     return false;
   }
 };

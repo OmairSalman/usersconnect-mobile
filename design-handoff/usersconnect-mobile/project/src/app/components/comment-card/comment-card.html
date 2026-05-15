@@ -1,0 +1,86 @@
+<div class="comment-wrapper mb-3" [attr.data-comment-id]="comment._id">
+  <div class="d-flex align-items-center">
+    <!-- Bubble + footer -->
+    <div class="d-flex flex-column">
+      @if(!editing())
+      {
+        <div class="comment-bubble p-2 mb-1">
+          <div class="comment-author fw-bold mb-1">
+            <a [routerLink]="['/profile', comment.author._id]">
+              <img [src]="comment.author.avatarURL"
+                  [alt]="comment.author.name + '\'s avatar'"
+                  class="rounded-circle me-2"
+                  width="24"
+                  height="24">{{ comment.author.name }}</a>
+          </div>
+          <div class="comment-content">{{ comment.content }}</div>
+        </div>
+      }
+      @else
+      {
+        <form class="edit-comment-form" [formGroup]="editForm" (ngSubmit)="onSaveEdit()">
+          <textarea class="edit-comment-textarea form-control" formControlName="content"></textarea>
+          <div class="edit-btn-row d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading()">
+              @if(loading()){<i class="fa-solid fa-spinner fa-spin"></i> Saving...}
+              @else {Save}
+            </button>
+            <button type="button" (click)="onCancelEdit()" class="btn btn-danger btn-sm cancel-edit-comment-btn">Cancel</button>
+          </div>
+        </form>
+      }
+
+      <!-- Footer directly below bubble -->
+      <div class="comment-footer d-flex justify-content-between align-items-center small mt-1">
+        <!-- Time ago left -->
+        <span class="comment-date text-muted">{{ comment.createdAt | date:'short' }}</span>
+
+        <!-- Edit & delete labels right -->
+        @if(isAuthorized())
+        {
+          <div class="comment-actions d-flex align-items-center">
+            <button class="btn btn-link text-decoration-none me-2 edit-comment-btn" (click)="onEdit()">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="submit" class="btn btn-link delete-comment-btn p-0 m-0 text-danger text-decoration-none" (click)="onDelete()">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Like & Dislike buttons + counts (HORIZONTAL) -->
+    <div class="d-flex flex-row align-items-center ms-2 gap-2">
+      <!-- Like button + count (vertical group) -->
+      <div class="d-flex flex-column align-items-center">
+        <button class="icon-btn like-btn" 
+                [class.liked]="isLiked(comment.likes)"
+                (click)="onLike()"
+                title="Like/Unlike">
+          <i class="fa-solid fa-thumbs-up"></i>
+        </button>
+        <span class="like-count mt-1 small text-muted"
+              [id]="'like-count-' + comment._id"
+              style="cursor: pointer;">
+          {{ comment.likes.length }}
+        </span>
+      </div>
+
+      <!-- Dislike button + count (vertical group) -->
+      <div class="d-flex flex-column align-items-center">
+        <button class="icon-btn dislike-btn" 
+                [class.disliked]="isLiked(comment.dislikes)"
+                (click)="onDislike()"
+                title="Dislike/Undislike">
+          <i class="fa-solid fa-thumbs-down"></i>
+        </button>
+        <span class="dislike-count mt-1 small text-muted"
+              [id]="'dislike-count-' + comment._id"
+              style="cursor: pointer;">
+          {{ comment.dislikes.length }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

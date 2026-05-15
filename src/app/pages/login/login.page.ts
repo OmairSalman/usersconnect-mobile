@@ -4,9 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import {
   IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
   IonCard,
   IonCardHeader,
   IonCardTitle,
@@ -14,7 +11,7 @@ import {
   IonInput,
   IonButton,
   IonSpinner,
-  IonText
+  IonText,
 } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../services/auth.service';
@@ -28,9 +25,6 @@ import { AuthService } from '../../services/auth.service';
     CommonModule,
     ReactiveFormsModule,
     IonContent,
-    IonHeader,
-    IonTitle,
-    IonToolbar,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -38,8 +32,8 @@ import { AuthService } from '../../services/auth.service';
     IonInput,
     IonButton,
     IonSpinner,
-    IonText
-  ]
+    IonText,
+  ],
 })
 export class LoginPage {
   private fb = inject(FormBuilder);
@@ -50,33 +44,30 @@ export class LoginPage {
   error = signal('');
 
   loginForm: FormGroup = this.fb.group({
-    identifier: ['', [Validators.required]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    email: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  // Getters for form controls
-  get identifier() { return this.loginForm.get('identifier'); }
+  get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
 
   onLogin() {
-    if (this.loginForm.valid) {
-      this.loading.set(true);
-      this.error.set('');
+    if (this.loginForm.invalid) return;
+    this.loading.set(true);
+    this.error.set('');
 
-      const { identifier, password } = this.loginForm.value;
-
-      this.authService.login(identifier!, password!).subscribe({
-        next: () => {
-          this.loading.set(false);
-          // Navigate to feed on success
-          this.router.navigate(['/feed']);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(err.error?.message || 'Login failed');
-        }
-      });
-    }
+    const { email, password } = this.loginForm.value;
+    this.authService.login(email!, password!).subscribe({
+      next: (data) => {
+        this.authService.currentUser.set(data.user);
+        this.loading.set(false);
+        this.router.navigate(['/tabs/feed']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.error.set(err.error?.message || err.error?.error || 'Login failed');
+      },
+    });
   }
 
   goToRegister() {

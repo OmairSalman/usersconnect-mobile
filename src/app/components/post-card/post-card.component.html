@@ -1,0 +1,116 @@
+<div class="post-card" (click)="onCardClick()">
+  @if (!editing()) {
+    <!-- Author row -->
+    <div class="author-row" (click)="onAuthorClick($event)">
+      <img [src]="post.author.avatarURL" [alt]="post.author.name" class="author-avatar">
+      <div class="author-info">
+        <span class="author-name">{{ post.author.name }}</span>
+        <span class="post-date">{{ post.createdAt | date:'mediumDate' }}</span>
+      </div>
+      @if (isAuthorized()) {
+        <div class="post-controls" (click)="$event.stopPropagation()">
+          <button class="icon-btn" (click)="onEdit($event)" title="Edit">
+            <ion-icon name="pencil-outline"></ion-icon>
+          </button>
+          <button class="icon-btn danger" (click)="onDelete($event)" title="Delete">
+            <ion-icon name="trash-outline"></ion-icon>
+            @if (loading()) { <ion-spinner name="crescent" class="inline-spinner"></ion-spinner> }
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Title -->
+    <h3 class="post-title">{{ post.title }}</h3>
+
+    <!-- Image -->
+    @if (post.imageURL) {
+      <img [src]="post.imageURL" alt="Post image" class="post-image">
+    }
+
+    <!-- Content -->
+    <p class="post-content">{{ post.content }}</p>
+
+    <!-- Action bar -->
+    <div class="post-actions" (click)="$event.stopPropagation()">
+      <!-- Like -->
+      <div class="reaction-group">
+        <button class="reaction-btn" [class.liked]="isLiked(post.likes)" (click)="onLike($event)">
+          <ion-icon name="thumbs-up"></ion-icon>
+        </button>
+        <span class="reaction-count">{{ post.likes.length }}</span>
+      </div>
+
+      <!-- Dislike -->
+      <div class="reaction-group">
+        <button class="reaction-btn dislike" [class.disliked]="isLiked(post.dislikes)" (click)="onDislike($event)">
+          <ion-icon name="thumbs-down"></ion-icon>
+        </button>
+        <span class="reaction-count">{{ post.dislikes.length }}</span>
+      </div>
+
+      <!-- Comments -->
+      <button class="comment-btn" (click)="onViewComments($event)">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+        <span>{{ post.comments.length }}</span>
+      </button>
+    </div>
+  } @else {
+    <!-- Edit form -->
+    <form class="edit-form" (ngSubmit)="onSaveEdit()">
+      <input
+        [formControl]="$any(editForm.get('title'))"
+        class="edit-title-input"
+        placeholder="Post title"
+        (click)="$event.stopPropagation()">
+      <textarea
+        [formControl]="$any(editForm.get('content'))"
+        class="edit-content-textarea"
+        rows="4"
+        placeholder="Post content"
+        (click)="$event.stopPropagation()"></textarea>
+      <div class="edit-actions">
+        <button type="submit" class="save-btn" [disabled]="editForm.invalid || loading()">
+          @if (loading()) { <ion-spinner name="crescent" class="inline-spinner"></ion-spinner> } @else { Save }
+        </button>
+        <button type="button" class="cancel-btn" (click)="onCancelEdit(); $event.stopPropagation()">Cancel</button>
+      </div>
+    </form>
+  }
+
+  <!-- Comments section (detail mode only) -->
+  @if (showComments) {
+    <div class="comments-section" (click)="$event.stopPropagation()">
+      <div class="divider"></div>
+
+      <!-- Add comment -->
+      <div class="add-comment-row">
+        <img [src]="currentUser.avatarURL" [alt]="currentUser.name" class="my-avatar">
+        <div class="comment-input-wrap">
+          <input
+            [(ngModel)]="commentContent"
+            class="comment-input"
+            placeholder="Write a comment..."
+            (keydown.enter)="onAddComment()">
+          <button class="send-btn" (click)="onAddComment()" [disabled]="!commentContent.trim() || loading()">
+            <ion-icon name="send-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Comment list -->
+      @for (comment of post.comments; track comment._id) {
+        <app-comment-card
+          [comment]="comment"
+          [currentUser]="currentUser"
+          (commentUpdated)="onCommentUpdated($event)"
+          (commentDeleted)="onCommentDeleted($event)">
+        </app-comment-card>
+      }
+
+      @if (post.comments.length === 0) {
+        <p class="no-comments">No comments yet. Be the first!</p>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,91 @@
+@if(currentUser(); as user){
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" routerLink="/">UsersConnect</a>
+
+    <!-- Toggle for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar items -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav align-items-center ms-auto">
+        <li class="nav-item d-flex">
+          <a class="nav-link d-flex align-items-center" [routerLink]="['/profile']" [queryParams]="{page: 1}">
+            <img [src]="user.avatarURL" alt="Avatar" class="navbar-avatar me-2" style="width:32px; height:32px; border-radius:50%;">
+            <span class="navbar-username">{{ user.name }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" routerLink="/feed">
+            <i class="fa-solid fa-house me-2"></i> Feed
+          </a>
+        </li>
+        @if(user.isAdmin){
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" routerLink="/admin/users">
+              <i class="fa-solid fa-user-shield me-2"></i> Admin Tools
+            </a>
+          </li>
+        }
+        <li class="nav-item">
+          <button type="button" class="btn btn-link nav-link d-flex align-items-center" (click)="onLogout()">
+              <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+}
+
+<!-- Main content wrapper -->
+<main class="flex-grow-1 container my-5">
+  <router-outlet></router-outlet>
+
+  @if (modalService.showPleaseVerify())
+  {
+    <app-please-verify-modal
+      (close)="modalService.closePleaseVerifyModal()"
+      (verifyNow)="modalService.startVerification()">
+    </app-please-verify-modal>
+  }
+
+  @if (modalService.showEmailVerification())
+  {
+    <app-email-verification-modal
+      (close)="modalService.closeEmailVerificationModal()"
+      (verified)="modalService.closeEmailVerificationModal()">
+    </app-email-verification-modal>
+  }
+
+  @if (modalService.showConfirm())
+  {
+    <app-confirm-modal></app-confirm-modal>
+  }
+</main>
+
+<!-- Footer -->
+<footer class="mt-auto">
+  <div class="container py-3">
+    <div class="row">
+      <!-- Left: Logo or Brand -->
+      <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+        <span class="fw-bold" style="background: linear-gradient(90deg, #007bff, #6610f2); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          UsersConnect
+        </span>
+        &nbsp; © 2026. All rights reserved.
+      </div>
+
+      <!-- Right: Links -->
+      <div class="col-md-6 text-center text-md-end">
+        <a routerLink="/about" class="me-3">About</a>
+        <a routerLink="/privacy" class="me-3">Privacy</a>
+        <a routerLink="/terms" class="me-3">Terms</a>
+        <a routerLink="/contact">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>

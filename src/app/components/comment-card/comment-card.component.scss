@@ -1,0 +1,184 @@
+.comment-wrapper {
+  margin-bottom: 12px;
+}
+
+.comment-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.avatar-link {
+  flex-shrink: 0;
+}
+
+.comment-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  border-radius: 12px;
+  padding: 8px 12px;
+
+  .comment-author {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .comment-content {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    margin: 0;
+    word-break: break-word;
+  }
+}
+
+.comment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  margin-top: 2px;
+
+  .comment-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .comment-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+
+  &.danger {
+    color: var(--ion-color-danger);
+  }
+
+  ion-icon {
+    font-size: 0.85rem;
+  }
+}
+
+// Reaction buttons (same style as posts)
+.comment-reactions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.reaction-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.reaction-btn {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 0.85rem;
+  }
+
+  &.liked {
+    background: var(--brand-gradient);
+    border-color: transparent;
+    color: white;
+  }
+
+  &.disliked {
+    background: var(--ion-color-danger);
+    border-color: transparent;
+    color: white;
+  }
+}
+
+.reaction-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  min-width: 16px;
+  text-align: center;
+}
+
+// Edit form
+.edit-form {
+  ion-textarea.edit-textarea {
+    --background: #f8f9fa;
+    --border-radius: 8px;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+
+  .save-btn {
+    padding: 6px 14px;
+    background: var(--ion-color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  .cancel-btn {
+    padding: 6px 14px;
+    background: none;
+    color: var(--ion-color-danger);
+    border: 1px solid var(--ion-color-danger);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+}
+
+.inline-spinner {
+  width: 14px;
+  height: 14px;
+}

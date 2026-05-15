@@ -1,0 +1,26 @@
+ion-tab-bar {
+  --background: #ffffff;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+  height: 60px;
+}
+
+ion-tab-button {
+  --color: var(--text-muted);
+  --color-selected: var(--ion-color-primary);
+}
+
+.create-tab {
+  --color: transparent;
+  --color-selected: transparent;
+  --ripple-color: transparent;
+
+  .create-icon {
+    font-size: 3.2rem;
+    background: var(--brand-gradient);
+    border-radius: 50%;
+    color: white;
+    margin-top: -20px;
+    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.4);
+    padding: 2px;
+  }
+}

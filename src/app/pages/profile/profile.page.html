@@ -1,0 +1,128 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    @if (!isOwnProfile()) {
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/tabs/feed"></ion-back-button>
+      </ion-buttons>
+    }
+    <ion-title>{{ isOwnProfile() ? 'Profile' : (profileUser()?.name || 'Profile') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (loading()) {
+    <div class="loading-container">
+      <ion-spinner color="primary"></ion-spinner>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-container">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  @if (!loading() && profileUser(); as user) {
+    <!-- Profile card -->
+    <ion-card class="profile-card">
+      <ion-card-content>
+        <div class="profile-header">
+          <img [src]="user.avatarURL" [alt]="user.name" class="profile-avatar">
+          <div class="profile-info">
+            <h2 class="profile-name">{{ user.name }}</h2>
+
+            @if (isOwnProfile()) {
+              <div class="email-row">
+                <span class="profile-email">{{ user.email }}</span>
+                @if (user.isEmailVerified) {
+                  <ion-icon name="checkmark-circle" color="success" title="Verified"></ion-icon>
+                } @else {
+                  <ion-icon name="alert-circle" color="danger" title="Not verified"></ion-icon>
+                }
+                @if (user.isEmailPublic) {
+                  <ion-icon name="globe-outline" color="medium" title="Public"></ion-icon>
+                } @else {
+                  <ion-icon name="lock-closed-outline" color="medium" title="Private"></ion-icon>
+                }
+              </div>
+            } @else {
+              @if (user.isEmailPublic) {
+                <p class="profile-email">{{ user.email }}</p>
+              }
+            }
+
+            @if (user.isAdmin) {
+              <div class="admin-badge">
+                <ion-icon name="shield-outline"></ion-icon>
+                <span>Admin</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat">
+            <span class="stat-value">{{ posts().length }}</span>
+            <span class="stat-label">Posts</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ postsLikes() }}</span>
+            <span class="stat-label">Post Likes</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ commentsLikes() }}</span>
+            <span class="stat-label">Comment Likes</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Actions (own profile only) -->
+    @if (isOwnProfile()) {
+      <ion-list class="actions-list" lines="inset">
+        <ion-item button (click)="goToEditProfile()" detail="true">
+          <ion-icon name="create-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>Edit Profile</ion-label>
+        </ion-item>
+
+        @if (authService.currentUser()?.isAdmin) {
+          <ion-item button (click)="goToAdminUsers()" detail="true">
+            <ion-icon name="people-outline" slot="start" color="secondary"></ion-icon>
+            <ion-label>All Users</ion-label>
+          </ion-item>
+        }
+
+        <ion-item button (click)="onLogout()" class="logout-item">
+          <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+          <ion-label color="danger">Sign Out</ion-label>
+        </ion-item>
+      </ion-list>
+    }
+
+    <!-- Posts -->
+    <div class="posts-section">
+      <h3 class="section-title">{{ isOwnProfile() ? 'Your Posts' : 'Posts' }}</h3>
+
+      @if (posts().length === 0) {
+        <div class="state-container">
+          <p>{{ isOwnProfile() ? 'You haven\'t posted anything yet.' : user.name + ' has no posts yet.' }}</p>
+        </div>
+      }
+
+      @if (authService.currentUser(); as currentUser) {
+        @for (post of posts(); track post._id) {
+          <app-post-card
+            [post]="post"
+            [currentUser]="currentUser"
+            [showComments]="false"
+            (postUpdated)="onPostUpdated($event)"
+            (postDeleted)="onPostDeleted($event)">
+          </app-post-card>
+        }
+      }
+    </div>
+
+    <div class="bottom-spacer"></div>
+  }
+</ion-content>
